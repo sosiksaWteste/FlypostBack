@@ -6,6 +6,7 @@ use flypost;
         id int not null auto_increment,
         login varchar(255) not null,
         password varchar(255) not null,
+		role int not null,
         PRIMARY KEY (id)
     );
 
@@ -22,18 +23,18 @@ use flypost;
         FOREIGN KEY (user_id) REFERENCES user(id)
     );
 
-	create table city (
+		create table city (
         id int not null auto_increment,
         name varchar(100) not null,
         PRIMARY KEY (id)
     );
 
-	create table office (
+		create table office (
         id int not null auto_increment,
         office_number integer not null,
         address varchar(500) not null,
-	cord_x float not null,
-	cord_y float not null,
+		cord_x float not null,
+		cord_y float not null,
         city_id int not null,
         PRIMARY KEY (id),
         FOREIGN KEY (city_id) REFERENCES city(id)
@@ -80,11 +81,13 @@ use flypost;
         payment_id int,
         send_date Date not null,
         claim_date Date,
-        send_from varchar(500) not null,
-        send_to varchar(500) not null,
+        send_from int not null,
+        send_to int not null,
         price int not null,
-	current_position varchar(25) not null,
+		current_position varchar(25) not null,
         PRIMARY KEY (id),
+		FOREIGN KEY (send_from) REFERENCES office(id),
+		FOREIGN KEY (send_to) REFERENCES office(id),
         FOREIGN KEY (package_id) REFERENCES package(id),
         FOREIGN KEY (sender_id) REFERENCES client(id),
         FOREIGN KEY (recipient_id) REFERENCES client(id),
