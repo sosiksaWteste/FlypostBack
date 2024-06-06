@@ -69,6 +69,33 @@ app.get('/deliveries', (req, res) => {
     });
 });
 
+app.get('/users/:id', (req, res) => {
+    db.query(`SELECT * FROM user WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows);
+    });
+});
+
+app.get('/office/:id', (req, res) => {
+    db.query(`SELECT * FROM office WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows);
+    });
+});
+
+app.get('/client/:id', (req, res) => {
+    db.query(`SELECT * FROM client WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows);
+    });
+});
+
 app.get('/deliveries/:id', (req, res) => {
     db.query(`SELECT * FROM delivery WHERE recipient_id = ${req.params['id']} OR sender_id = ${req.params['id']}`, (err, rows) => {
         if (err) {
