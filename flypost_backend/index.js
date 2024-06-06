@@ -58,8 +58,19 @@ app.get('/packages', (req, res) => {
     });
 });
 
+SELECT * FROM delivery WHERE recipient_id = 2 OR sender_id = 2
+
 app.get('/deliveries', (req, res) => {
     db.query('SELECT * FROM delivery', (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows);
+    });
+});
+
+app.get('/deliveries/:id', (req, res) => {
+    db.query(`SELECT * FROM delivery WHERE recipient_id = ${req.params['id']} OR sender_id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -77,7 +88,7 @@ app.get('/payments', (req, res) => {
 });
 
 app.post('/payments', (req, res) => {
-    let data = req.body.toString();
+    let data = JSON.stringify(req.body);
 
     db.query(`INSERT INTO payment(payment_data) values(${data});`, (err, rows) => {
         if (err) {
@@ -88,9 +99,9 @@ app.post('/payments', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-    let data = req.body.toString();
+    let data = JSON.stringify(req.body);
 
-    db.query(`INSERT INTO payment(payment_data) values(${data});`, (err, rows) => {
+    db.query(`INSERT INTO users(login, password) values(${data});`, (err, rows) => {
         if (err) {
             throw err;
         }
