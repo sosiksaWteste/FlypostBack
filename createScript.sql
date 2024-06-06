@@ -23,13 +23,13 @@ use flypost;
         FOREIGN KEY (user_id) REFERENCES user(id)
     );
 
-		create table city (
+	create table city (
         id int not null auto_increment,
         name varchar(100) not null,
         PRIMARY KEY (id)
     );
 
-		create table office (
+	create table office (
         id int not null auto_increment,
         office_number integer not null,
         address varchar(500) not null,
