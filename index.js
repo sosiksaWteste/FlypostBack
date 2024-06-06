@@ -88,9 +88,10 @@ app.get('/payments', (req, res) => {
 });
 
 app.post('/payments', (req, res) => {
-    let data = JSON.stringify(req.body);
+    var obj = JSON.parse(req.body);
+    var values = Object.values(obj);
 
-    db.query(`INSERT INTO payment(payment_data) values(${data});`, (err, rows) => {
+    db.query(`INSERT INTO payment(payment_data) values(${obj["payment_data"]});`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -99,9 +100,10 @@ app.post('/payments', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-    let data = JSON.stringify(req.body);
+    var obj = JSON.parse(req.body);
+    var values = Object.values(obj);
 
-    db.query(`INSERT INTO users(login, password) values(${data});`, (err, rows) => {
+    db.query(`INSERT INTO users(login, password, role) values(${obj["login"]}, ${obj["password"]}, ${obj["role"]});`, (err, rows) => {
         if (err) {
             throw err;
         }
