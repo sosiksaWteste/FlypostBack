@@ -58,8 +58,6 @@ app.get('/packages', (req, res) => {
     });
 });
 
-SELECT * FROM delivery WHERE recipient_id = 2 OR sender_id = 2
-
 app.get('/deliveries', (req, res) => {
     db.query('SELECT * FROM delivery', (err, rows) => {
         if (err) {
