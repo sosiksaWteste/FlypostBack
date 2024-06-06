@@ -7,6 +7,7 @@ const app = express();
 const port = 3001;
 
 app.use(cors());
+app.use(express.json());
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -113,10 +114,7 @@ app.get('/payments', (req, res) => {
 });
 
 app.post('/payments', (req, res) => {
-    var obj = JSON.parse(req.body);
-    var values = Object.values(obj);
-
-    db.query(`INSERT INTO payment(payment_data) values(${obj["payment_data"]});`, (err, rows) => {
+    db.query(`INSERT INTO payment(payment_data) values('${req.body.payment_data}');`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -125,10 +123,7 @@ app.post('/payments', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-    var obj = JSON.parse(req.body);
-    var values = Object.values(obj);
-
-    db.query(`INSERT INTO users(login, password, role) values(${obj["login"]}, ${obj["password"]}, ${obj["role"]});`, (err, rows) => {
+    db.query(`INSERT INTO user(login, password, role) values('${req.body.login}', '${req.body.password}', '${req.body.role}');`, (err, rows) => {
         if (err) {
             throw err;
         }
