@@ -115,7 +115,7 @@ app.get('/payments', (req, res) => {
 });
 
 app.post('/payments', (req, res) => {
-    db.query(`INSERT INTO payment(payment_data) values('${req.body.payment_data}');`, (err, rows) => {
+    db.query(`INSERT INTO payment(payment_data, payment_date) values('${req.body.payment_data}', '${req.body.payment_date}');`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -132,9 +132,18 @@ app.post('/users', (req, res) => {
     });
 });
 
-app.post('/employees', (req, res) => {
-    db.query(`INSERT INTO employee(email, first_name, last_name, middle_name, office_id, phone, salary, start_work, user_id)
-    values('${req.body.email}', '${req.body.first_name}', '${req.body.last_name}', '${req.body.middle_name}', ${req.body.office_id}, '${req.body.phone}', ${req.body.salary}, '${req.body.start_work}', ${req.body.user_id});`, (err, rows) => {
+app.post('/users', (req, res) => {
+    db.query(`INSERT INTO user(login, password, role) values('${req.body.login}', '${req.body.password}', '${req.body.role}');`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+});
+
+app.post('/packages', (req, res) => {
+    db.query(`INSERT INTO employee(description, height, insurance, length, weight, width)
+    values('${req.body.description}', ${req.body.height}, ${req.body.insurance}, ${req.body.length}, ${req.body.weight}, ${req.body.width});`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -173,6 +182,16 @@ app.delete('/users/:id', (req, res) => {
     res.end();
 });
 
+app.delete('/packages/:id', (req, res) => {
+    db.query(`DELETE FROM package WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+    res.end();
+});
+
 app.delete('/employees/:id', (req, res) => {
     db.query(`DELETE FROM employee WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
@@ -185,6 +204,16 @@ app.delete('/employees/:id', (req, res) => {
 
 app.put('/users/:id', (req, res) => {
     db.query(`UPDATE user SET login = '${req.body.login}', password = '${req.body.password}', role = ${req.body.role} WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+    res.end();
+});
+
+app.put('/packages/:id', (req, res) => {
+    db.query(`UPDATE package SET description = '${req.body.description}', height = ${req.body.height}, insurance = ${req.body.insurance}, length = ${req.body.length}, weight = ${req.body.weight}, width = ${req.body.width} WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
