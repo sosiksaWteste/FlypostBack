@@ -123,6 +123,16 @@ app.get('/payments', (req, res) => {
     });
 });
 
+app.post('/packages', (req, res) => {
+    db.query(`INSERT INTO package(description, height, insurance, length, weight, width) 
+    values('isFragile=${req.body.package.isFragile};isMoisture=${req.body.package.isMoisture}', ${req.body.package.height}, ${req.body.package.price}, ${req.body.package.length}, ${req.body.package.weight}, ${req.body.package.width});`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+    });
+    
+});
+
 app.post('/offices', (req, res) => {
     db.query(`INSERT INTO office(address, city_id, cord_x, cord_y, office_number) 
     values('${req.body.address}', ${req.body.city_id}, ${req.body.cord_x}, ${req.body.cord_y}, ${req.body.office_number});`, (err, rows) => {
@@ -131,6 +141,7 @@ app.post('/offices', (req, res) => {
         }
         res.status(200);
     });
+    res.end();
 });
 
 app.post('/payments', (req, res) => {
@@ -140,6 +151,7 @@ app.post('/payments', (req, res) => {
         }
         res.status(200);
     });
+    res.end();
 });
 
 app.post('/users', (req, res) => {
@@ -149,6 +161,7 @@ app.post('/users', (req, res) => {
         }
         res.status(200);
     });
+    res.end();
 });
 
 app.post('/employees', (req, res) => {
@@ -159,6 +172,7 @@ app.post('/employees', (req, res) => {
         }
         res.status(200);
     });
+    res.end();
 });
 
 app.post('/auth/login', (req, res) => {
@@ -178,8 +192,8 @@ app.post('/auth/login', (req, res) => {
         )
 
         res.json({ token : token, username : rows[0].login, role : rows[0].role });
-        res.end();
     });
+    res.end();
 });
 
 app.delete('/offices/:id', (req, res) => {
