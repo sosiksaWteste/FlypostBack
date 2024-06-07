@@ -203,12 +203,24 @@ app.post('/offices', (req, res) => {
     res.end();
 });
 
-app.post('/payments', (req, res) => {
+app.post('/payments/:id', (req, res) => {
     db.query(`INSERT INTO payment(payment_data, payment_date) values('${req.body.payment_data}', '${req.body.payment_date}');`, (err, rows) => {
         if (err) {
             throw err;
         }
-        res.sendStatus(200);
+    });
+
+    db.query(`SELECT * FROM payment WHERE payment_data = '${req.body.payment_data}' AND payment_date = '${req.body.payment_date}'`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        db.query(`UPDATE delivery SET package_id = ${rows[0].id} WHERE package_id = ${req.params['id']}`, (err, rows2) => {
+            if (err) {
+                throw err;
+            }
+            
+            res.sendStatus(200);
+        });
     });
     res.end();
 });
