@@ -14,7 +14,7 @@ app.use(express.json());
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'administrator',
+    password: 'admin',
     database: 'flypost'
 });
 
@@ -44,7 +44,9 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/packagePrice/:id', (req, res) => {
-    db.query(`SELECT price FROM delivery WHERE package_id = ${req.params['id']}`, (err, rows) => {
+    db.query(`SELECT price
+              FROM delivery
+              WHERE package_id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -62,7 +64,19 @@ app.get('/clients', (req, res) => {
 });
 
 app.get('/employees', (req, res) => {
-    db.query(`SELECT email, first_name, last_name, middle_name, office_id, phone, salary, start_work, user_id, login FROM employee INNER JOIN user ON employee.user_id = user.id`, (err, rows) => {
+    db.query(`SELECT employee.id,
+                     email,
+                     first_name,
+                     last_name,
+                     middle_name,
+                     office_id,
+                     phone,
+                     salary,
+                     start_work,
+                     user_id,
+                     login
+              FROM employee
+                       INNER JOIN user ON employee.user_id = user.id`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -71,7 +85,18 @@ app.get('/employees', (req, res) => {
 });
 
 app.get('/packages', (req, res) => {
-    db.query('SELECT * FROM package', (err, rows) => {
+    // inner join with sender and recipient
+    db.query(`SELECT package.id, description, height,insurance, length, weight, width, sender_id, recipient_id, send_date, send_from, send_to, price, current_position, status,
+                     sender.first_name as sender_first_name,
+                     sender.last_name as sender_last_name,
+                     sender.middle_name as sender_middle_name,
+                     recipient.first_name as recipient_first_name,
+                     recipient.last_name as recipient_last_name,
+                     recipient.middle_name as recipient_middle_name
+              FROM delivery
+                       INNER JOIN package ON delivery.package_id = package.id
+                       INNER JOIN client sender ON delivery.sender_id = sender.id
+                       INNER JOIN client recipient ON delivery.recipient_id = recipient.id`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -98,7 +123,9 @@ app.get('/offices', (req, res) => {
 });
 
 app.get('/users/:id', (req, res) => {
-    db.query(`SELECT * FROM user WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`SELECT *
+              FROM user
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -107,7 +134,9 @@ app.get('/users/:id', (req, res) => {
 });
 
 app.get('/offices/:id', (req, res) => {
-    db.query(`SELECT * FROM office WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`SELECT *
+              FROM office
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -116,7 +145,9 @@ app.get('/offices/:id', (req, res) => {
 });
 
 app.get('/clients/:id', (req, res) => {
-    db.query(`SELECT * FROM client WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`SELECT *
+              FROM client
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -125,7 +156,9 @@ app.get('/clients/:id', (req, res) => {
 });
 
 app.get('/employees/:id', (req, res) => {
-    db.query(`SELECT * FROM employee WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`SELECT *
+              FROM employee
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -134,7 +167,10 @@ app.get('/employees/:id', (req, res) => {
 });
 
 app.get('/deliveries/:id', (req, res) => {
-    db.query(`SELECT * FROM delivery WHERE recipient_id = ${req.params['id']} OR sender_id = ${req.params['id']}`, (err, rows) => {
+    db.query(`SELECT *
+              FROM delivery
+              WHERE recipient_id = ${req.params['id']}
+                 OR sender_id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -152,8 +188,10 @@ app.get('/payments', (req, res) => {
 });
 
 app.post('/packages', (req, res) => {
-    db.query(`INSERT INTO package(description, height, insurance, length, weight, width) 
-    values('${req.body.package.description}', ${req.body.package.height}, ${req.body.package.price}, ${req.body.package.length}, ${req.body.package.weight}, ${req.body.package.width});`, (err, rows) => {
+    db.query(`INSERT INTO package(description, height, insurance, length, weight, width)
+              values ('${req.body.package.description}', ${req.body.package.height}, ${req.body.package.insurance},
+                      ${req.body.package.length}, ${req.body.package.weight},
+                      ${req.body.package.width});`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -165,128 +203,160 @@ app.post('/packages', (req, res) => {
     let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
     let year = date_ob.getFullYear();
 
-    db.query(`SELECT * FROM client WHERE email = '${req.body.sender.email}'`, (err, rows) => {
+    db.query(`SELECT *
+              FROM client
+              WHERE email = '${req.body.sender.email}'`, (err, rows) => {
         if (err) {
             throw err;
         }
         sender = rows;
     });
 
-    db.query(`SELECT * FROM client WHERE email = '${req.body.receiver.email}'`, (err, rows) => {
+    db.query(`SELECT *
+              FROM client
+              WHERE email = '${req.body.receiver.email}'`, (err, rows) => {
         if (err) {
             throw err;
         }
         recipient = rows;
     });
 
-    db.query(`SELECT office_id FROM employee INNER JOIN user ON user.id = employee.user_id WHERE login = '${req.body.username}'`, (err, rows) => {
+    db.query(`SELECT office_id
+              FROM employee
+                       INNER JOIN user ON user.id = employee.user_id
+              WHERE login = '${req.body.username}'`, (err, rows) => {
         if (err) {
             throw err;
         }
         from = rows;
     });
-    
-    db.query(`SELECT * FROM package WHERE description = '${req.body.package.description}' AND height = ${req.body.package.height} AND insurance = ${req.body.package.price} AND length = ${req.body.package.length} AND weight = ${req.body.package.weight} AND width = ${req.body.package.width};`, (err, rows) => {
+
+    db.query(`SELECT *
+              FROM package
+              WHERE description = '${req.body.package.description}'
+                AND height = ${req.body.package.height}
+                AND insurance = ${req.body.package.insurance}
+                AND length = ${req.body.package.length}
+                AND weight = ${req.body.package.weight}
+                AND width = ${req.body.package.width};`, (err, rows) => {
         if (err) {
             throw err;
         }
-        db.query(`INSERT INTO delivery(package_id, sender_id, recipient_id, send_date, send_from, send_to, price, current_position, status)
-        values(${rows[0].id}, ${sender[0].id}, ${recipient[0].id}, '${year}-${month}-${date}', ${from[0].office_id}, ${req.body.receiver.officeId}, 1000, ${from[0].office_id}, 'start' );`, (err, rows2) => {
+        db.query(`INSERT INTO delivery(package_id, sender_id, recipient_id, send_date, send_from, send_to, price,
+                                       current_position, status)
+                  values (${rows[0].id}, ${sender[0].id}, ${recipient[0].id}, '${year}-${month}-${date}',
+                          ${from[0].office_id}, ${req.body.receiver.officeId}, 1000, ${from[0].office_id},
+                          'start');`, (err, rows2) => {
             if (err) {
                 throw err;
             }
         });
     });
-    
+
     res.sendStatus(200);
 });
 
 app.post('/offices', (req, res) => {
-    db.query(`INSERT INTO office(address, city_id, cord_x, cord_y, office_number) 
-    values('${req.body.address}', ${req.body.city_id}, ${req.body.cord_x}, ${req.body.cord_y}, ${req.body.office_number});`, (err, rows) => {
+    db.query(`INSERT INTO office(address, city_id, cord_x, cord_y, office_number)
+              values ('${req.body.address}', ${req.body.city_id}, ${req.body.cord_x}, ${req.body.cord_y},
+                      ${req.body.office_number});`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.post('/payments/:id', (req, res) => {
-    db.query(`INSERT INTO payment(payment_data, payment_date) values('${req.body.payment_data}', '${req.body.payment_date}');`, (err, rows) => {
+    db.query(`INSERT INTO payment(payment_data, payment_date)
+              values ('${req.body.payment_data}', '${req.body.payment_date}');`, (err, rows) => {
         if (err) {
             throw err;
         }
     });
 
-    db.query(`SELECT * FROM payment WHERE payment_data = '${req.body.payment_data}' AND payment_date = '${req.body.payment_date}'`, (err, rows) => {
+    db.query(`SELECT *
+              FROM payment
+              WHERE payment_data = '${req.body.payment_data}'
+                AND payment_date = '${req.body.payment_date}'`, (err, rows) => {
         if (err) {
             throw err;
         }
-        db.query(`UPDATE delivery SET package_id = ${rows[0].id} WHERE package_id = ${req.params['id']}`, (err, rows2) => {
+        db.query(`UPDATE delivery
+                  SET package_id = ${rows[0].id}
+                  WHERE package_id = ${req.params['id']}`, (err, rows2) => {
             if (err) {
                 throw err;
             }
-            
+
             res.sendStatus(200);
         });
     });
-    res.end();
 });
 
 app.post('/users', (req, res) => {
-    db.query(`INSERT INTO user(login, password, role) values('${req.body.login}', '${req.body.password}', ${req.body.role});`, (err, rows) => {
+    db.query(`INSERT INTO user(login, password, role)
+              values ('${req.body.login}', '${req.body.password}', ${req.body.role});`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.post('/employees', (req, res) => {
-    if (req.body.user_id == -1) {
-        db.query(`INSERT INTO user(login, password, role) values('${req.body.email}', '123', 1);`, (err, rows) => {
+    if (req.body.user_id === -1) {
+        db.query(`INSERT INTO user(login, password, role)
+                  values ('${req.body.email}', '123', 1);`, (err, rows) => {
             if (err) {
                 throw err;
             }
         });
 
-        db.query(`SELECT * FROM user WHERE login = '${req.body.email}' AND password = '123' AND role = 1;`, (err, rows) => {
+        db.query(`SELECT *
+                  FROM user
+                  WHERE login = '${req.body.email}'
+                    AND password = '123'
+                    AND role = 1;`, (err, rows) => {
             if (err) {
                 throw err;
             }
-            db.query(`INSERT INTO employee(email, first_name, last_name, middle_name, office_id, phone, salary, start_work, user_id)
-            values('${req.body.email}', '${req.body.first_name}', '${req.body.last_name}', '${req.body.middle_name}', ${req.body.office_id}, '${req.body.phone}', ${req.body.salary}, '${req.body.start_work}', ${rows[0].id});`, (err, rows2) => {
+            db.query(`INSERT INTO employee(email, first_name, last_name, middle_name, office_id, phone, salary,
+                                           start_work, user_id)
+                      values ('${req.body.email}', '${req.body.first_name}', '${req.body.last_name}',
+                              '${req.body.middle_name}', ${req.body.office_id}, '${req.body.phone}', ${req.body.salary},
+                              '${req.body.start_work}', ${rows[0].id});`, (err, rows2) => {
                 if (err) {
                     throw err;
                 }
-            res.sendStatus(200);
+                res.status(200).send();
             });
         });
+    } else {
+        db.query(`INSERT INTO employee(email, first_name, last_name, middle_name, office_id, phone, salary, start_work,
+                                       user_id)
+                  values ('${req.body.email}', '${req.body.first_name}', '${req.body.last_name}',
+                          '${req.body.middle_name}', ${req.body.office_id}, '${req.body.phone}', ${req.body.salary},
+                          '${req.body.start_work}', ${req.body.user_id});`, (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            res.sendStatus(200);
+        });
     }
-    
-    db.query(`INSERT INTO employee(email, first_name, last_name, middle_name, office_id, phone, salary, start_work, user_id)
-    values('${req.body.email}', '${req.body.first_name}', '${req.body.last_name}', '${req.body.middle_name}', ${req.body.office_id}, '${req.body.phone}', ${req.body.salary}, '${req.body.start_work}', ${req.body.user_id});`, (err, rows) => {
-        if (err) {
-            throw err;
-        }
-        res.sendStatus(200);
-    });
-    res.end();
 });
 
 app.post('/auth/login', (req, res) => {
-    db.query(`SELECT * FROM user WHERE login = '${req.body.login}'`, (err, rows) => {
+    db.query(`SELECT *
+              FROM user
+              WHERE login = '${req.body.login}'`, (err, rows) => {
         if (err) {
             throw err;
         }
 
         if (rows[0] == null || req.body.password != rows[0].password) {
             res.status(400);
-            res.end();
-        }
-        else{
+        } else {
             const token = jwt.sign(
                 {
                     id: rows[0].id,
@@ -296,90 +366,116 @@ app.post('/auth/login', (req, res) => {
                 `${process.env.JWT_SECRET_KEY}`
             );
 
-            res.json({ token : token, username : rows[0].login, role : rows[0].role });
-            res.end();
+            res.json({token: token, username: rows[0].login, role: rows[0].role});
         }
     });
 });
 
 app.delete('/offices/:id', (req, res) => {
-    db.query(`DELETE FROM office WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`DELETE
+              FROM office
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.delete('/users/:id', (req, res) => {
-    db.query(`DELETE FROM user WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`DELETE
+              FROM user
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.delete('/packages/:id', (req, res) => {
-    db.query(`DELETE FROM package WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`DELETE
+              FROM package
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.delete('/employees/:id', (req, res) => {
-    db.query(`DELETE FROM employee WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`DELETE
+              FROM employee
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.put('/offices/:id', (req, res) => {
-    db.query(`UPDATE office SET address = '${req.body.address}', city_id = ${req.body.city_id}, cord_x = ${req.body.cord_x}, cord_y = ${req.body.cord_y}, office_number = ${req.body.office_number} WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`UPDATE office
+              SET address       = '${req.body.address}',
+                  city_id       = ${req.body.city_id},
+                  cord_x        = ${req.body.cord_x},
+                  cord_y        = ${req.body.cord_y},
+                  office_number = ${req.body.office_number}
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.put('/users/:id', (req, res) => {
-    db.query(`UPDATE user SET login = '${req.body.login}', password = '${req.body.password}', role = ${req.body.role} WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`UPDATE user
+              SET login    = '${req.body.login}',
+                  password = '${req.body.password}',
+                  role     = ${req.body.role}
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.put('/packages/:id', (req, res) => {
-    db.query(`UPDATE package SET description = '${req.body.description}', height = ${req.body.height}, insurance = ${req.body.insurance}, length = ${req.body.length}, weight = ${req.body.weight}, width = ${req.body.width} WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`UPDATE package
+              SET description = '${req.body.description}',
+                  height      = ${req.body.height},
+                  insurance   = ${req.body.insurance},
+                  length      = ${req.body.length},
+                  weight      = ${req.body.weight},
+                  width       = ${req.body.width}
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
         res.sendStatus(200);
     });
-    res.end();
 });
 
 app.put('/employees/:id', (req, res) => {
-    db.query(`UPDATE employee SET email = '${req.body.email}', first_name = '${req.body.first_name}', last_name = '${req.body.last_name}', middle_name = '${req.body.middle_name}', office_id = ${req.body.office_id}, phone = '${req.body.phone}', salary = ${req.body.salary}, start_work = '${req.body.start_work}', user_id = ${req.body.user_id} WHERE id = ${req.params['id']}`, (err, rows) => {
+    db.query(`UPDATE employee
+              SET email       = '${req.body.email}',
+                  first_name  = '${req.body.first_name}',
+                  last_name   = '${req.body.last_name}',
+                  middle_name = '${req.body.middle_name}',
+                  office_id   = ${req.body.office_id},
+                  phone       = '${req.body.phone}',
+                  salary      = ${req.body.salary},
+                  start_work  = '${req.body.start_work}',
+                  user_id     = ${req.body.user_id}
+              WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
-        res.sendStatus(200);
+        res.status(200).send();
     });
-    res.end();
 });
 
 app.listen(port, () => {
