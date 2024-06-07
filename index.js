@@ -43,7 +43,7 @@ app.get('/clients', (req, res) => {
 });
 
 app.get('/employees', (req, res) => {
-    db.query('SELECT * FROM employee', (err, rows) => {
+    db.query(`SELECT email, first_name, last_name, middle_name, office_id, phone, salary, start_work, user_id, login FROM employee INNER JOIN user ON employee.user_id = user.id`, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -87,7 +87,7 @@ app.get('/users/:id', (req, res) => {
     });
 });
 
-app.get('/office/:id', (req, res) => {
+app.get('/offices/:id', (req, res) => {
     db.query(`SELECT * FROM office WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
@@ -96,8 +96,17 @@ app.get('/office/:id', (req, res) => {
     });
 });
 
-app.get('/client/:id', (req, res) => {
+app.get('/clients/:id', (req, res) => {
     db.query(`SELECT * FROM client WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows);
+    });
+});
+
+app.get('/employees/:id', (req, res) => {
+    db.query(`SELECT * FROM employee WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
