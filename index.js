@@ -69,6 +69,15 @@ app.get('/deliveries', (req, res) => {
     });
 });
 
+app.get('/offices', (req, res) => {
+    db.query('SELECT * FROM office', (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows);
+    });
+});
+
 app.get('/users/:id', (req, res) => {
     db.query(`SELECT * FROM user WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
@@ -111,6 +120,16 @@ app.get('/payments', (req, res) => {
             throw err;
         }
         res.json(rows);
+    });
+});
+
+app.post('/offices', (req, res) => {
+    db.query(`INSERT INTO office(address, city_id, cord_x, cord_y, office_number) 
+    values('${req.body.address}', ${req.body.city_id}, ${req.body.cord_x}, ${req.body.cord_y}, ${req.body.office_number});`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
     });
 });
 
@@ -172,6 +191,16 @@ app.post('/auth/login', (req, res) => {
     });
 });
 
+app.delete('/offices/:id', (req, res) => {
+    db.query(`DELETE FROM office WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+    res.end();
+});
+
 app.delete('/users/:id', (req, res) => {
     db.query(`DELETE FROM user WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
@@ -194,6 +223,16 @@ app.delete('/packages/:id', (req, res) => {
 
 app.delete('/employees/:id', (req, res) => {
     db.query(`DELETE FROM employee WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+    res.end();
+});
+
+app.put('/offices/:id', (req, res) => {
+    db.query(`UPDATE office SET address = '${req.body.address}', city_id = ${req.body.city_id}, cord_x = ${req.body.cord_x}, cord_y = ${req.body.cord_y}, office_number = ${req.body.office_number} WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
