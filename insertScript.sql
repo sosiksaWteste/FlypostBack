@@ -17,6 +17,6 @@ insert into employee(first_name, last_name, phone, email, start_work, salary, us
 
 insert into package(width, length, height, weight, insurance) values(100, 100, 50, 25, 1000);
 
-insert into payment(payment_data) values('mastercard');
+insert into payment(payment_data, payment_date) values('mastercard', '2023-01-01');
 
-insert into delivery(package_id, sender_id, recipient_id, payment_id, send_date, send_from, send_to, price, current_position) values(1, 1, 2, 1, '2023-01-01', 1, 2, 2500, 'виїхала');
+insert into delivery(package_id, sender_id, recipient_id, payment_id, send_date, send_from, send_to, price, current_position, status) values(1, 1, 2, 1, '2023-01-01', 1, 2, 2500, 1, 'виїхала');
