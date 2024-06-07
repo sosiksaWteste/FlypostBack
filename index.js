@@ -153,9 +153,19 @@ app.post('/auth/login', (req, res) => {
     });
 });
 
-app.put('/users', (req, res) => {
+app.delete('/users/:id', (req, res) => {
+    db.query(`DELETE FROM user WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+    res.end();
+});
+
+app.put('/users/:id', (req, res) => {
     console.log(req.body);
-    db.query(`UPDATE user SET login = '${req.body.login}', password = '${req.body.password}', role = ${req.body.role} WHERE id = ${req.body.id}`, (err, rows) => {
+    db.query(`UPDATE user SET login = '${req.body.login}', password = '${req.body.password}', role = ${req.body.role} WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
