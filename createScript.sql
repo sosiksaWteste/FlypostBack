@@ -70,6 +70,7 @@ use flypost;
 	create table payment (
         id int not null auto_increment,
         payment_data varchar(500),
+		payment_date Date not null,
         PRIMARY KEY (id)
     );
 
@@ -84,7 +85,8 @@ use flypost;
         send_from int not null,
         send_to int not null,
         price int not null,
-		current_position varchar(25) not null,
+		current_position int not null,
+		status varchar(25) not null,
         PRIMARY KEY (id),
 		FOREIGN KEY (send_from) REFERENCES office(id),
 		FOREIGN KEY (send_to) REFERENCES office(id),
