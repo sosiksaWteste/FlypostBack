@@ -25,6 +25,15 @@ db.connect((err) => {
     console.log('Connected to database');
 });
 
+app.get('/cities', (req, res) => {
+    db.query('SELECT * FROM city', (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows);
+    });
+});
+
 app.get('/users', (req, res) => {
     db.query('SELECT * FROM user', (err, rows) => {
         if (err) {
