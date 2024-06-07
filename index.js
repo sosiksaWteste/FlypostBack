@@ -34,6 +34,15 @@ app.get('/users', (req, res) => {
     });
 });
 
+app.get('/packagePrice/:id', (req, res) => {
+    db.query(`SELECT price FROM delivery WHERE package_id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows);
+    });
+});
+
 app.get('/clients', (req, res) => {
     db.query('SELECT * FROM client', (err, rows) => {
         if (err) {
