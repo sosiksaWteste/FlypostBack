@@ -215,6 +215,27 @@ app.post('/users', (req, res) => {
 });
 
 app.post('/employees', (req, res) => {
+    if (req.body.user_id == -1) {
+        db.query(`INSERT INTO user(login, password, role) values('${req.body.email}', '123', 1);`, (err, rows) => {
+            if (err) {
+                throw err;
+            }
+        });
+
+        db.query(`SELECT * FROM user WHERE login = '${req.body.email}' AND password = '123' AND role = 1;`, (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            db.query(`INSERT INTO employee(email, first_name, last_name, middle_name, office_id, phone, salary, start_work, user_id)
+            values('${req.body.email}', '${req.body.first_name}', '${req.body.last_name}', '${req.body.middle_name}', ${req.body.office_id}, '${req.body.phone}', ${req.body.salary}, '${req.body.start_work}', ${rows[0].id});`, (err, rows2) => {
+                if (err) {
+                    throw err;
+                }
+            res.sendStatus(200);
+            });
+        });
+    }
+    
     db.query(`INSERT INTO employee(email, first_name, last_name, middle_name, office_id, phone, salary, start_work, user_id)
     values('${req.body.email}', '${req.body.first_name}', '${req.body.last_name}', '${req.body.middle_name}', ${req.body.office_id}, '${req.body.phone}', ${req.body.salary}, '${req.body.start_work}', ${req.body.user_id});`, (err, rows) => {
         if (err) {
