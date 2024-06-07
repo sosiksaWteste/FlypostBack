@@ -153,6 +153,17 @@ app.post('/auth/login', (req, res) => {
     });
 });
 
+app.put('/users', (req, res) => {
+    console.log(req.body);
+    db.query(`UPDATE user SET login = '${req.body.login}', password = '${req.body.password}', role = ${req.body.role} WHERE id = ${req.body.id}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+    res.end();
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
