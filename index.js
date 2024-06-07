@@ -5,6 +5,7 @@ const path = require('path');
 
 const app = express();
 const port = 3001;
+const jwt = require('jsonwebtoken');
 
 app.use(cors());
 app.use(express.json());
@@ -128,6 +129,27 @@ app.post('/users', (req, res) => {
             throw err;
         }
         res.status(200);
+    });
+});
+
+app.post('/auth/login', (req, res) => {
+    db.query(`SELECT * FROM user WHERE login = '${req.body.login}'`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+
+        if (rows[0] == null || req.body.password != rows[0].password) {
+            res.status(400);
+            res.end();
+        }
+
+        const token = jwt.sign(
+            { id: rows[0].id, login: rows[0].login },
+            `${process.env.JWT_SECRET_KEY}`
+        )
+
+        res.json({ token : token, username : rows[0].login, role : rows[0].role });
+        res.end();
     });
 });
 
