@@ -6,6 +6,7 @@ const path = require('path');
 const app = express();
 const port = 3001;
 const jwt = require('jsonwebtoken');
+let date_ob = new Date();
 
 app.use(cors());
 app.use(express.json());
@@ -134,12 +135,52 @@ app.get('/payments', (req, res) => {
 
 app.post('/packages', (req, res) => {
     db.query(`INSERT INTO package(description, height, insurance, length, weight, width) 
-    values('isFragile=${req.body.package.isFragile};isMoisture=${req.body.package.isMoisture}', ${req.body.package.height}, ${req.body.package.price}, ${req.body.package.length}, ${req.body.package.weight}, ${req.body.package.width});`, (err, rows) => {
+    values('${req.body.package.description}', ${req.body.package.height}, ${req.body.package.price}, ${req.body.package.length}, ${req.body.package.weight}, ${req.body.package.width});`, (err, rows) => {
         if (err) {
             throw err;
         }
     });
+    let sender;
+    let recipient;
+    let from;
+    let date = ("0" + date_ob.getDate()).slice(-2);
+    let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+    let year = date_ob.getFullYear();
+
+    db.query(`SELECT * FROM client WHERE email = '${req.body.sender.email}'`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        sender = rows;
+    });
+
+    db.query(`SELECT * FROM client WHERE email = '${req.body.receiver.email}'`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        recipient = rows;
+    });
+
+    db.query(`SELECT office_id FROM employee INNER JOIN user ON user.id = employee.user_id WHERE login = '${req.body.username}'`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        from = rows;
+    });
     
+    db.query(`SELECT * FROM package WHERE description = '${req.body.package.description}' AND height = ${req.body.package.height} AND insurance = ${req.body.package.price} AND length = ${req.body.package.length} AND weight = ${req.body.package.weight} AND width = ${req.body.package.width};`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        db.query(`INSERT INTO delivery(package_id, sender_id, recipient_id, send_date, send_from, send_to, price, current_position, status)
+        values(${rows[0].id}, ${sender[0].id}, ${recipient[0].id}, '${year}-${month}-${date}', ${from[0].office_id}, ${req.body.receiver.officeId}, 1000, ${from[0].office_id}, 'start' );`, (err, rows2) => {
+            if (err) {
+                throw err;
+            }
+        });
+    });
+    
+    res.sendStatus(200);
 });
 
 app.post('/offices', (req, res) => {
@@ -148,7 +189,7 @@ app.post('/offices', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -158,7 +199,7 @@ app.post('/payments', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -168,7 +209,7 @@ app.post('/users', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -179,7 +220,7 @@ app.post('/employees', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -201,6 +242,7 @@ app.post('/auth/login', (req, res) => {
         )
 
         res.json({ token : token, username : rows[0].login, role : rows[0].role });
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -210,7 +252,7 @@ app.delete('/offices/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -220,7 +262,7 @@ app.delete('/users/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -230,7 +272,7 @@ app.delete('/packages/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -240,7 +282,7 @@ app.delete('/employees/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -250,7 +292,7 @@ app.put('/offices/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -260,7 +302,7 @@ app.put('/users/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -270,7 +312,7 @@ app.put('/packages/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
@@ -280,7 +322,7 @@ app.put('/employees/:id', (req, res) => {
         if (err) {
             throw err;
         }
-        res.status(200);
+        res.sendStatus(200);
     });
     res.end();
 });
