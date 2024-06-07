@@ -132,6 +132,16 @@ app.post('/users', (req, res) => {
     });
 });
 
+app.post('/employees', (req, res) => {
+    db.query(`INSERT INTO employee(email, first_name, last_name, middle_name, office_id, phone, salary, start_work, user_id)
+    values('${req.body.email}', '${req.body.first_name}', '${req.body.last_name}', '${req.body.middle_name}', ${req.body.office_id}, '${req.body.phone}', ${req.body.salary}, '${req.body.start_work}', ${req.body.user_id});`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+});
+
 app.post('/auth/login', (req, res) => {
     db.query(`SELECT * FROM user WHERE login = '${req.body.login}'`, (err, rows) => {
         if (err) {
@@ -163,9 +173,28 @@ app.delete('/users/:id', (req, res) => {
     res.end();
 });
 
+app.delete('/employees/:id', (req, res) => {
+    db.query(`DELETE FROM employee WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+    res.end();
+});
+
 app.put('/users/:id', (req, res) => {
-    console.log(req.body);
     db.query(`UPDATE user SET login = '${req.body.login}', password = '${req.body.password}', role = ${req.body.role} WHERE id = ${req.params['id']}`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.status(200);
+    });
+    res.end();
+});
+
+app.put('/employees/:id', (req, res) => {
+    db.query(`UPDATE employee SET email = '${req.body.email}', first_name = '${req.body.first_name}', last_name = '${req.body.last_name}', middle_name = '${req.body.middle_name}, office_id = ${req.body.office_id}, phone = '${req.body.phone}', salary = ${req.body.salary}, start_work = '${req.body.start_work}', user_id = ${req.body.user_id} WHERE id = ${req.params['id']}`, (err, rows) => {
         if (err) {
             throw err;
         }
