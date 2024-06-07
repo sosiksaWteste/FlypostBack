@@ -277,16 +277,20 @@ app.post('/auth/login', (req, res) => {
             res.status(400);
             res.end();
         }
+        else{
+            const token = jwt.sign(
+                {
+                    id: rows[0].id,
+                    login: rows[0].login,
+                    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour expiration
+                },
+                `${process.env.JWT_SECRET_KEY}`
+            );
 
-        const token = jwt.sign(
-            { id: rows[0].id, login: rows[0].login },
-            `${process.env.JWT_SECRET_KEY}`
-        )
-
-        res.json({ token : token, username : rows[0].login, role : rows[0].role });
-        res.sendStatus(200);
+            res.json({ token : token, username : rows[0].login, role : rows[0].role });
+            res.end();
+        }
     });
-    res.end();
 });
 
 app.delete('/offices/:id', (req, res) => {
